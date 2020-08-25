@@ -56,6 +56,46 @@ AutoGluon_best:
   params:
     presets: best_quality
 
+AutoGluon_fastai:
+  extends: AutoGluon
+  params:
+    hyperparameters: {FASTAINN: {}}
+
+AutoGluon_catboost:
+  extends: AutoGluon
+  params:
+    hyperparameters: {CAT: {}}
+
+AutoGluon_lgbm_custom:
+  extends: AutoGluon
+  params:
+    hyperparameters: {custom: ['GBM']}
+
+AutoGluon_lgbm:
+  extends: AutoGluon
+  params:
+    hyperparameters: {GBM: {}}
+
+AutoGluon_rf:
+  extends: AutoGluon
+  params:
+    hyperparameters: {RF: {}}
+
+AutoGluon_xt:
+  extends: AutoGluon
+  params:
+    hyperparameters: {XT: {}}
+
+AutoGluon_knn:
+  extends: AutoGluon
+  params:
+    hyperparameters: {KNN: {}}
+
+AutoGluon_nn:
+  extends: AutoGluon
+  params:
+    hyperparameters: {NN: {}}
+
 autosklearn:
   version: '0.6.0'
   project: https://automl.github.io/auto-sklearn/stable/
