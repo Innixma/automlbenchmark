@@ -16,6 +16,9 @@ AutoGluon_bestquality:
   params:
     presets: best_quality
 
+pseudo_label:
+  extends: AutoGluon
+
 autosklearn:
   version: 'latest'
 
