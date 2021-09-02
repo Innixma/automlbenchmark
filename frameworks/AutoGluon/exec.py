@@ -69,7 +69,6 @@ def run(dataset, config):
                                                        validation_data=validation_data, label=label,
                                                        init_kwargs=init_args, fit_kwargs=training_params,
                                                        max_iter=1, reuse_pred_test=False, threshold=0.9)
-        log.info('hello')
     del train
 
     if is_classification:
