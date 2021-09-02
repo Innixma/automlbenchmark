@@ -65,7 +65,7 @@ def run(dataset, config):
             eval_metric=perf_metric.name,
             path=models_dir,
             problem_type=problem_type)
-        predictor, predictions = fit_pseudo_end_to_end(train_data=train_data, test_data=test_df,
+        predictor = fit_pseudo_end_to_end(train_data=train_data, test_data=test_df,
                                                        validation_data=validation_data, label=label,
                                                        init_kwargs=init_args, fit_kwargs=training_params,
                                                        max_iter=1, reuse_pred_test=False, threshold=0.9)
