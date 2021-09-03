@@ -11,7 +11,8 @@
 AutoGluon:
   version: "latest"
 
-Pseudo_label:
+AutoGluon_Pseudo:
+  extends: AutoGluon
   version: "latest"
   params:
     pseudo: True
