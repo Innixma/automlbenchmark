@@ -11,20 +11,13 @@
 AutoGluon:
   version: "latest"
 
-AutoGluon_Pseudo:
-  extends: AutoGluon
+PseudoLabel:
   version: "latest"
-  params:
-    pseudo: True
 
 AutoGluon_bestquality:
   extends: AutoGluon
   params:
     presets: best_quality
-
-Pseudo-label:
-  extends: AutoGluon
-  version: 'latest'
 
 autosklearn:
   version: 'latest'
