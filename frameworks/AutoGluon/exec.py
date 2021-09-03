@@ -58,7 +58,7 @@ def run(dataset, config):
     test_df = TabularDataset(test)
     validation_data = train_df.sample(frac=0.2, random_state=1)
     train_data = train_df.drop(validation_data.index)
-
+    log.info(training_params)
     with Timer() as training:
         training_params['time_limit'] = config.max_runtime_seconds
         init_args = dict(
