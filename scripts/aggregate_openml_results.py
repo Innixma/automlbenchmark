@@ -35,10 +35,10 @@ def aggregate_from_params(s3_bucket, s3_prefix, version_name, suffix, contains, 
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('s3_bucket', type=str, help="Name of S3 bucket that results get outputted to")
-    parser.add_argument('version_name', type=str, help='')
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    # parser.add_argument('s3_bucket', type=str, help="Name of S3 bucket that results get outputted to")
+    # parser.add_argument('version_name', type=str, help='')
+    # args = parser.parse_args()
     aggregate_from_params(
         s3_bucket='automl-benchmark-dylan',
         s3_prefix='',
