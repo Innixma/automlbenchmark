@@ -33,9 +33,9 @@ def filter_duration(df, duration=40000):
     return df[df['duration'] < duration]
 
 
-def compute_win_lose(base, tie, prune):
-    total = max(len(base) + len(prune) + len(tie), 1)
-    return round((len(prune) + 0.5 * len(tie)) / total, 4), round((len(base) + 0.5 * len(tie)) / total, 4)
+def compute_win_lose(base, tie, pseudo_label):
+    total = max(len(base) + len(pseudo_label) + len(tie), 1)
+    return round((len(pseudo_label) + 0.5 * len(tie)) / total, 4), round((len(base) + 0.5 * len(tie)) / total, 4)
 
 
 def print_inference_speedup(df1, df2):
@@ -158,93 +158,93 @@ def print_miscellaneous(df1, df2):
     lower_quantile, upper_quantile = np.quantile(score_diffs, 0.025), np.quantile(score_diffs, 0.975)
     score_diffs = [diff for diff in score_diffs if lower_quantile < diff < upper_quantile]
     print(f"Relative Error Reduction Info (mean ± 2 * sigma): {round(np.mean(score_diffs), 4)} ± {round(np.std(score_diffs), 4)}, ({round(score_diffs[0], 4)}, {round(score_diffs[-1], 4)})")
-    print(f"Number of Errored Runs (Base/Prune): {len(base[~base['info'].isna()])}/{len(prune[~prune['info'].isna()])}")
+    print(f"Number of Errored Runs (Base/pseudo_label): {len(base[~base['info'].isna()])}/{len(pseudo_label[~pseudo_label['info'].isna()])}")
 
 
-def print_automl_comparisons(base: pd.DataFrame, prune: pd.DataFrame, others: pd.DataFrame):
+def print_automl_comparisons(base: pd.DataFrame, pseudo_label: pd.DataFrame, others: pd.DataFrame):
     print("==============================================================================")
     rows = []
     for framework in others['framework'].unique():
         other = others[others['framework'] == framework]
         first_better, equal_performance, second_better = compare_dfs(other, base)
         base_win, base_lose = compute_win_lose(first_better, equal_performance, second_better)
-        first_better, equal_performance, second_better = compare_dfs(other, prune)
-        prune_win, prune_lose = compute_win_lose(first_better, equal_performance, second_better)
+        first_better, equal_performance, second_better = compare_dfs(other, pseudo_label)
+        pseudo_label_win, pseudo_label_lose = compute_win_lose(first_better, equal_performance, second_better)
         base_improvement, _, _, _ = compare_dfs_improvement(other, base)
-        prune_improvement, _, _, _ = compare_dfs_improvement(other, prune)
+        pseudo_label_improvement, _, _, _ = compare_dfs_improvement(other, pseudo_label)
 
-        rows.append({'Framework': framework, 'Base Win Rate': base_win, 'Prune Win Rate': prune_win,
-                     'Base Error Reduction': base_improvement, 'Prune Error Reduction': prune_improvement,
-                     'Win Rate Improvement': prune_win - base_win, 'Error Reduction Improvement': prune_improvement - base_improvement})
+        rows.append({'Framework': framework, 'Base Win Rate': base_win, 'pseudo_label Win Rate': pseudo_label_win,
+                     'Base Error Reduction': base_improvement, 'pseudo_label Error Reduction': pseudo_label_improvement,
+                     'Win Rate Improvement': pseudo_label_win - base_win, 'Error Reduction Improvement': pseudo_label_improvement - base_improvement})
     df = pd.DataFrame(rows)
     print(df)
     print("==============================================================================")
 
 
-def print_suite_result(base: pd.DataFrame, prune: pd.DataFrame, indepth=True, grouped=False):
+def print_suite_result(base: pd.DataFrame, pseudo_label: pd.DataFrame, indepth=True, grouped=False):
     baselow = filter_samples(base, samples=args.sample_low)
-    prunelow = filter_samples(prune, samples=args.sample_low)
+    pseudo_labellow = filter_samples(pseudo_label, samples=args.sample_low)
     basemed = filter_samples(filter_samples(base, samples=args.sample_low, lower=False), samples=args.sample_med)
-    prunemed = filter_samples(filter_samples(prune, samples=args.sample_low, lower=False), samples=args.sample_med)
+    pseudo_labelmed = filter_samples(filter_samples(pseudo_label, samples=args.sample_low, lower=False), samples=args.sample_med)
     basehigh = filter_samples(base, samples=args.sample_med, lower=False)
-    prunehigh = filter_samples(prune, samples=args.sample_med, lower=False)
-    first_better, equal_performance, second_better = compare_dfs(base, prune, grouped=grouped)
+    pseudo_labelhigh = filter_samples(pseudo_label, samples=args.sample_med, lower=False)
+    first_better, equal_performance, second_better = compare_dfs(base, pseudo_label, grouped=grouped)
     num_total = len(first_better) + len(second_better) + len(equal_performance)
     print("==============================================================================")
-    print(f"Mean Improvement Ratio: {compare_dfs_improvement(base, prune)[0]}")
+    print(f"Mean Improvement Ratio: {compare_dfs_improvement(base, pseudo_label)[0]}")
     print(f"Win Rate: {round((len(second_better) + 0.5 * len(equal_performance))/ num_total, 4)}, Lose Rate: {round((len(first_better) + 0.5 * len(equal_performance)) / num_total, 4)}")
-    print(f"All Run Base Win: {len(first_better)}, Prune Win: {len(second_better)}, Tie: {len(equal_performance)}")
+    print(f"All Run Base Win: {len(first_better)}, pseudo_label Win: {len(second_better)}, Tie: {len(equal_performance)}")
 
     rows = []
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'ALL', 'Feature Size': 'ALL', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'ALL', 'Feature Size': 'ALL', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
     ss_base = filter_features(baselow, features=args.feature_low)
-    ss_prune = filter_features(prunelow, features=args.feature_low)
-    first_better, equal_performance, second_better = compare_dfs(ss_base, ss_prune, grouped=grouped)
+    ss_pseudo_label = filter_features(pseudo_labellow, features=args.feature_low)
+    first_better, equal_performance, second_better = compare_dfs(ss_base, ss_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'S', 'Feature Size': 'S', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'S', 'Feature Size': 'S', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
     sm_base = filter_features(filter_features(baselow, features=args.feature_low, lower=False), features=args.feature_med)
-    sm_prune = filter_features(filter_features(prunelow, features=args.feature_low, lower=False), features=args.feature_med)
-    first_better, equal_performance, second_better = compare_dfs(sm_base, sm_prune, grouped=grouped)
+    sm_pseudo_label = filter_features(filter_features(pseudo_labellow, features=args.feature_low, lower=False), features=args.feature_med)
+    first_better, equal_performance, second_better = compare_dfs(sm_base, sm_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'S', 'Feature Size': 'M', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'S', 'Feature Size': 'M', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
     sl_base = filter_features(baselow, features=args.feature_med, lower=False)
-    sl_prune = filter_features(prunelow, features=args.feature_med, lower=False)
-    first_better, equal_performance, second_better = compare_dfs(sl_base, sl_prune, grouped=grouped)
+    sl_pseudo_label = filter_features(pseudo_labellow, features=args.feature_med, lower=False)
+    first_better, equal_performance, second_better = compare_dfs(sl_base, sl_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'S', 'Feature Size': 'L', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'S', 'Feature Size': 'L', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
 
     ms_base = filter_features(basemed, features=args.feature_low)
-    ms_prune = filter_features(prunemed, features=args.feature_low)
-    first_better, equal_performance, second_better = compare_dfs(ms_base, ms_prune, grouped=grouped)
+    ms_pseudo_label = filter_features(pseudo_labelmed, features=args.feature_low)
+    first_better, equal_performance, second_better = compare_dfs(ms_base, ms_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'M', 'Feature Size': 'S', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'M', 'Feature Size': 'S', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
     mm_base = filter_features(filter_features(basemed, features=args.feature_low, lower=False), features=args.feature_med)
-    mm_prune = filter_features(filter_features(prunemed, features=args.feature_low, lower=False), features=args.feature_med)
-    first_better, equal_performance, second_better = compare_dfs(mm_base, mm_prune, grouped=grouped)
+    mm_pseudo_label = filter_features(filter_features(pseudo_labelmed, features=args.feature_low, lower=False), features=args.feature_med)
+    first_better, equal_performance, second_better = compare_dfs(mm_base, mm_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'M', 'Feature Size': 'M', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'M', 'Feature Size': 'M', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
     ml_base = filter_features(basemed, features=args.feature_med, lower=False)
-    ml_prune = filter_features(prunemed, features=args.feature_med, lower=False)
-    first_better, equal_performance, second_better = compare_dfs(ml_base, ml_prune, grouped=grouped)
+    ml_pseudo_label = filter_features(pseudo_labelmed, features=args.feature_med, lower=False)
+    first_better, equal_performance, second_better = compare_dfs(ml_base, ml_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'M', 'Feature Size': 'L', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'M', 'Feature Size': 'L', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
 
     ls_base = filter_features(basehigh, features=args.feature_low)
-    ls_prune = filter_features(prunehigh, features=args.feature_low)
-    first_better, equal_performance, second_better = compare_dfs(ls_base, ls_prune, grouped=grouped)
+    ls_pseudo_label = filter_features(pseudo_labelhigh, features=args.feature_low)
+    first_better, equal_performance, second_better = compare_dfs(ls_base, ls_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'L', 'Feature Size': 'S', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'L', 'Feature Size': 'S', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
     lm_base = filter_features(filter_features(basehigh, features=args.feature_low, lower=False), features=args.feature_med)
-    lm_prune = filter_features(filter_features(prunehigh, features=args.feature_low, lower=False), features=args.feature_med)
-    first_better, equal_performance, second_better = compare_dfs(lm_base, lm_prune, grouped=grouped)
+    lm_pseudo_label = filter_features(filter_features(pseudo_labelhigh, features=args.feature_low, lower=False), features=args.feature_med)
+    first_better, equal_performance, second_better = compare_dfs(lm_base, lm_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'L', 'Feature Size': 'M', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'L', 'Feature Size': 'M', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
     ll_base = filter_features(basehigh, features=args.feature_med, lower=False)
-    ll_prune = filter_features(prunehigh, features=args.feature_med, lower=False)
-    first_better, equal_performance, second_better = compare_dfs(ll_base, ll_prune, grouped=grouped)
+    ll_pseudo_label = filter_features(pseudo_labelhigh, features=args.feature_med, lower=False)
+    first_better, equal_performance, second_better = compare_dfs(ll_base, ll_pseudo_label, grouped=grouped)
     win, lose = compute_win_lose(first_better, equal_performance, second_better)
-    rows.append({'Sample Size': 'L', 'Feature Size': 'L', 'Base Win': len(first_better), 'Prune Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
+    rows.append({'Sample Size': 'L', 'Feature Size': 'L', 'Base Win': len(first_better), 'pseudo_label Win': len(second_better), 'Tie': len(equal_performance), 'Win Rate': win, 'Lose Rate': lose})
 
     df = pd.DataFrame(rows)
     print(df)
@@ -255,80 +255,80 @@ def print_suite_result(base: pd.DataFrame, prune: pd.DataFrame, indepth=True, gr
 
 # 1h
 # base = "result/baseline/1hmed/results_automlbenchmark_1h8c_autogluon.ag.1h8c.aws.20210827T163031.csv"
-# prune = "result/best/1hmed/results_automlbenchmark_1h8c_prune_med.ag.1h8c.aws.20210828T182000.csv"
+# pseudo_label = "result/best/1hmed/results_automlbenchmark_1h8c_pseudo_label_med.ag.1h8c.aws.20210828T182000.csv"
 
 # base = "result/baseline/1hhigh/results_automlbenchmark_1h8c_autogluon_high.ag.1h8c.aws.20210829T224457.csv"
-# prune = "result/best/1hhigh/results_automlbenchmark_1h8c_prune_high.ag.1h8c.aws.20210829T224459.csv"
+# pseudo_label = "result/best/1hhigh/results_automlbenchmark_1h8c_pseudo_label_high.ag.1h8c.aws.20210829T224459.csv"
 
 # base = "result/baseline/1hnorepeat/results_automlbenchmark_1h8c_autogluon_norepeat.ag.1h8c.aws.20210827T202558.csv"
-# prune = "result/best/1hnorepeat/results_automlbenchmark_1h8c_prune_norepeat.ag.1h8c.aws.20210829T224516.csv"
+# pseudo_label = "result/best/1hnorepeat/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210829T224516.csv"
 
 # base = "result/baseline/1hbest/results_automlbenchmark_1h8c_autogluon_bestquality.ag.1h8c.aws.20210830T230714.csv"
 # base = "~/Downloads/results_automlbenchmark_1h8c_2021_08_29_knn.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_autogluon_bestquality.ag.1h8c.aws.20210902T175142.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210902T175139.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_autogluon_bestquality.ag.1h8c.aws.20210902T175142.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210902T175139.csv"
 
 # norepeat
 # base = "~/Downloads/results_automlbenchmark_1h8c_autogluon_norepeat.ag.1h8c.aws.20210908T151458.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_norepeat.ag.1h8c.aws.20210905T230349.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_norepeat.ag.1h8c.aws.20210906T213059.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_norepeat.ag.1h8c.aws.20210908T035241.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_norepeat.ag.1h8c.aws.20210909T090238.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_norepeat.ag.1h8c.aws.20210909T202902.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210905T230349.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210906T213059.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210908T035241.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210909T090238.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210909T202902.csv"
 
 # full
 base = "~/Downloads/results_automlbenchmark_vanilla.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210904T011959(1).csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210905T192540.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210906T202118.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_minimprovement.ag.1h8c.aws.20210906T213112.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210907T084943.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_stoppinground.ag.1h8c.aws.20210907T104958.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210907T175902.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_replacebag.ag.1h8c.aws.20210907T175858.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210907T221927.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_replacebag.ag.1h8c.aws.20210907T222005.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210908T012205.csv" # slide result
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune_minimprovement.ag.1h8c.aws.20210908T094645.csv"
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210908T182233.csv" # no 300 cap
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210908T235902.csv" # removed feature metadata bug
-# prune = "~/Downloads/results_automlbenchmark_1h8c_prune.ag.1h8c.aws.20210909T070228.csv" # experimental
-prune = "~/Downloads/results_automlbenchmark_pseudo_p9_1i.csv" # final
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210904T011959(1).csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210905T192540.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210906T202118.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_minimprovement.ag.1h8c.aws.20210906T213112.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210907T084943.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_stoppinground.ag.1h8c.aws.20210907T104958.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210907T175902.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_replacebag.ag.1h8c.aws.20210907T175858.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210907T221927.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_replacebag.ag.1h8c.aws.20210907T222005.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T012205.csv" # slide result
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_minimprovement.ag.1h8c.aws.20210908T094645.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T182233.csv" # no 300 cap
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T235902.csv" # removed feature metadata bug
+# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210909T070228.csv" # experimental
+pseudo_label = "~/Downloads/results_automlbenchmark_pseudo_p9_1i.csv" # final
 
 # 4h
 # base = "result/baseline/4hmed/results_automlbenchmark_4h8c_autogluon.ag.4h8c.aws.20210827T163032.csv"
-# prune = "result/best/4hmed/results_automlbenchmark_4h8c_prune_med.ag.4h8c.aws.20210828T210007.csv"
+# pseudo_label = "result/best/4hmed/results_automlbenchmark_4h8c_pseudo_label_med.ag.4h8c.aws.20210828T210007.csv"
 
 # base = "result/baseline/4hhigh/results_automlbenchmark_4h8c_autogluon_high.ag.4h8c.aws.20210830T073353.csv"
-# prune = "result/best/4hhigh/results_automlbenchmark_4h8c_prune_high.ag.4h8c.aws.20210830T073352.csv"
+# pseudo_label = "result/best/4hhigh/results_automlbenchmark_4h8c_pseudo_label_high.ag.4h8c.aws.20210830T073352.csv"
 
 # base = "result/baseline/4hnorepeat/results_automlbenchmark_4h8c_autogluon_norepeat.ag.4h8c.aws.20210827T062721.csv"
-# prune = "result/best/4hnorepeat/results_automlbenchmark_4h8c_prune_norepeat.ag.4h8c.aws.20210828T210006.csv"
-# prune = "result/best/4hnorepeat/results_automlbenchmark_4h8c_prune_norepeat.ag.4h8c.aws.20210829T060616.csv"
+# pseudo_label = "result/best/4hnorepeat/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210828T210006.csv"
+# pseudo_label = "result/best/4hnorepeat/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210829T060616.csv"
 
 # base = "result/baseline/4hbest/results_automlbenchmark_4h8c_autogluon_bestquality.ag.4h8c.aws.20210827T062731.csv"
-# base = "result/best/4hbest/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210828T210005.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune_improvementthreshold.ag.4h8c.aws.20210829T060617.csv"
+# base = "result/best/4hbest/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210828T210005.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_improvementthreshold.ag.4h8c.aws.20210829T060617.csv"
 
 # # norepeat
 # base = "~/Downloads/results_automlbenchmark_4h8c_autogluon_norepeat.ag.4h8c.aws.20210908T145253.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune_norepeat.ag.4h8c.aws.20210905T230350.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune_norepeat.ag.4h8c.aws.20210907T001718.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune_norepeat.ag.4h8c.aws.20210908T062913.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune_norepeat.ag.4h8c.aws.20210909T090240.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210905T230350.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210907T001718.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210908T062913.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210909T090240.csv"
 
 # # full
 # base = "~/Downloads/results_automlbenchmark_4h8c_2021_09_02.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210902T062359(1).csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210905T192543.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210906T095323.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210906T202121.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210907T131305.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210908T012206.csv" # slide result
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune_minimprovement.ag.4h8c.aws.20210908T074624.csv"
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210908T182235.csv" # no 300 cap
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210908T235905.csv" # no feature metadata bag
-# prune = "~/Downloads/results_automlbenchmark_4h8c_prune.ag.4h8c.aws.20210909T070232.csv" # experimental
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210902T062359(1).csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210905T192543.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210906T095323.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210906T202121.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210907T131305.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210908T012206.csv" # slide result
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_minimprovement.ag.4h8c.aws.20210908T074624.csv"
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210908T182235.csv" # no 300 cap
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210908T235905.csv" # no feature metadata bag
+# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210909T070232.csv" # experimental
 
 
 if __name__ == "__main__":
@@ -342,50 +342,50 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--done_only', help='whether to display results for only datasets that finished', default=False, type=bool)
     args = parser.parse_args()
 
-    print(f"{os.path.basename(base)} vs {os.path.basename(prune)}")
+    print(f"{os.path.basename(base)} vs {os.path.basename(pseudo_label)}")
     base = pd.read_csv(base)
-    prune = pd.read_csv(prune)
+    pseudo_label = pd.read_csv(pseudo_label)
     # base = base[base['framework'] == 'AutoGluon_bestquality']  # FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # prune = prune[prune['framework'] == 'AutoGluon_bestquality']  # FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # prune = prune[prune['framework'] == 'AutoGluon_bestquality_prune']  # FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # pseudo_label = pseudo_label[pseudo_label['framework'] == 'AutoGluon_bestquality']  # FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # pseudo_label = pseudo_label[pseudo_label['framework'] == 'AutoGluon_bestquality_pseudo_label']  # FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    # PRUNE TRIGGERED ONLY
+    # pseudo_label TRIGGERED ONLY
     # # import pdb; pdb.set_trace()
     # debug = pd.read_csv('~/Downloads/debug_info(166).csv')
-    # untriggered_rows = debug[(~debug['pruned']) & (debug['total_prune_time'] == 0)]
+    # untriggered_rows = debug[(~debug['pseudo_labeld']) & (debug['total_pseudo_label_time'] == 0)]
     # untriggered_task_fold = untriggered_rows['name'] + untriggered_rows['fold'].astype(str)
     # base['taskfold'] = base['task'] + base['fold'].astype(str)
-    # prune['taskfold'] = prune['task'] + prune['fold'].astype(str)
+    # pseudo_label['taskfold'] = pseudo_label['task'] + pseudo_label['fold'].astype(str)
     # base = base[~base['taskfold'].isin(untriggered_task_fold)]
-    # prune = prune[~prune['taskfold'].isin(untriggered_task_fold)]
+    # pseudo_label = pseudo_label[~pseudo_label['taskfold'].isin(untriggered_task_fold)]
 
     # others = pd.read_csv(f"result/baseline/{int(args.duration)}hbest/other_systems.csv")
     task_metadata = pd.read_csv('~/Downloads/task_metadata.csv')
     base = add_dataset_info(base, task_metadata)
-    prune = add_dataset_info(prune, task_metadata)
+    pseudo_label = add_dataset_info(pseudo_label, task_metadata)
 
     DURATION = args.duration * 3600
     basedone = filter_duration(base, duration=DURATION)
-    prunedone = filter_duration(prune, duration=DURATION)
+    pseudo_labeldone = filter_duration(pseudo_label, duration=DURATION)
 
     try:
         print("==============================================================================")
         if not args.done_only:
             print("ALL")
-            print_suite_result(base, prune, grouped=False)
+            print_suite_result(base, pseudo_label, grouped=False)
             print("ALL (Grouped)")
-            print_suite_result(base, prune, grouped=True)
+            print_suite_result(base, pseudo_label, grouped=True)
         else:
             print("DONE ONLY")
-            print_suite_result(basedone, prunedone, grouped=False)
+            print_suite_result(basedone, pseudo_labeldone, grouped=False)
             print("DONE ONLY (Grouped)")
-            print_suite_result(basedone, prunedone, grouped=True)
+            print_suite_result(basedone, pseudo_labeldone, grouped=True)
         if args.framework:
             print("OTHERS")
-            # print_automl_comparisons(base, prune, others)
+            # print_automl_comparisons(base, pseudo_label, others)
         print("MISCELLANEOUS")
-        print_inference_speedup(base, prune)
-        print_miscellaneous(base, prune)
+        print_inference_speedup(base, pseudo_label)
+        print_miscellaneous(base, pseudo_label)
     except Exception as e:
         pdb.post_mortem()
 
