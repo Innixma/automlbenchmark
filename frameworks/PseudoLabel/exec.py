@@ -85,15 +85,15 @@ def run(dataset, config):
             eval_metric=perf_metric.name,
             path=models_dir,
             problem_type=problem_type)
-        predictor = fit_pseudo_end_to_end(train_data=train_data, test_data=test_df,
+        predictor, probabilities = fit_pseudo_end_to_end(train_data=train_data, test_data=test_df,
                                                        validation_data=validation_data, label=label,
                                                        init_kwargs=init_args, fit_kwargs=training_params,
                                                        max_iter=1, reuse_pred_test=False, threshold=0.95)
     del train
 
     if is_classification:
-        with Timer() as predict:
-            probabilities = predictor.predict_proba(test, as_multiclass=True)
+        # with Timer() as predict:
+        #     probabilities = predictor.predict_proba(test, as_multiclass=True)
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
         with Timer() as predict:
