@@ -91,14 +91,10 @@ def run(dataset, config):
                                                      init_kwargs=init_args, fit_kwargs=training_params,
                                                      max_iter=1, reuse_pred_test=False, threshold=0.95)
     del train
-    log.info('predictor: Type')
-    log.info(type(predictor))
-    log.info('probs out')
-    log.info(probabilities)
 
     if is_classification:
-        # with Timer() as predict:
-        #     probabilities = predictor.predict_proba(test, as_multiclass=True)
+        with Timer() as predict:
+             fake_probabilities = predictor.predict_proba(test, as_multiclass=True)
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
         with Timer() as predict:
