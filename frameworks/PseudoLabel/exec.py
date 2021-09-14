@@ -15,7 +15,7 @@ import pandas as pd
 
 matplotlib.use('agg')  # no need for tk
 
-from autogluon.tabular import TabularDataset, fit_pseudo_end_to_end
+from autogluon.tabular import TabularDataset, TabularPredictor
 from autogluon.core.utils.savers import save_pd, save_pkl
 import autogluon.core.metrics as metrics
 from autogluon.tabular.version import __version__
@@ -65,12 +65,12 @@ def run(dataset, config):
     test_num_diff = desired_num_test - num_test
 
     if test_num_diff > 0:
-        sample_frac = test_num_diff/num_train
+        sample_frac = test_num_diff / num_train
         more_test = train_df.sample(frac=sample_frac, random_state=1)
         train_df = train_df.drop(more_test.index)
         test_df.append(more_test)
     elif test_num_diff < 0:
-        sample_frac = abs(test_num_diff)/num_test
+        sample_frac = abs(test_num_diff) / num_test
         more_train = test_df.sample(frac=sample_frac, random_state=1)
         test_df = test_df.drop(more_train.index)
         train_df.append(more_train)
@@ -85,10 +85,11 @@ def run(dataset, config):
             eval_metric=perf_metric.name,
             path=models_dir,
             problem_type=problem_type)
-        predictor, probabilities = fit_pseudo_end_to_end(train_data=train_data, test_data=test_df,
-                                                       validation_data=validation_data, label=label,
-                                                       init_kwargs=init_args, fit_kwargs=training_params,
-                                                       max_iter=1, reuse_pred_test=False, threshold=0.95)
+        predictor, probabilities = TabularPredictor(
+            label=label, **init_args).bad_pseudo_fit(train_data=train_data, test_data=test_df,
+                                                     validation_data=validation_data,
+                                                     init_kwargs=init_args, fit_kwargs=training_params,
+                                                     max_iter=1, reuse_pred_test=False, threshold=0.95)
     del train
 
     if is_classification:
