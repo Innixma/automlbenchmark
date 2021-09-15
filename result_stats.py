@@ -277,7 +277,7 @@ def print_suite_result(base: pd.DataFrame, pseudo_label: pd.DataFrame, indepth=T
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210909T202902.csv"
 
 # full
-base = "~/Downloads/results_automlbenchmark_vanilla_set_tune_data.csv"
+base = "~/Downloads/results_automlbenchmark_vanilla_large_test.csv"
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210904T011959(1).csv"
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210905T192540.csv"
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210906T202118.csv"
@@ -293,7 +293,7 @@ base = "~/Downloads/results_automlbenchmark_vanilla_set_tune_data.csv"
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T182233.csv" # no 300 cap
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T235902.csv" # removed feature metadata bug
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210909T070228.csv" # experimental
-pseudo_label = "~/Downloads/results_pseudo_p85_normal_split.csv" # final
+pseudo_label = "~/Downloads/results_automlbenchmark_pseudo_p75_test.csv" # final
 
 # 4h
 # base = "result/baseline/4hmed/results_automlbenchmark_4h8c_autogluon.ag.4h8c.aws.20210827T163032.csv"
