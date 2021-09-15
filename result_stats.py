@@ -293,7 +293,7 @@ base = "~/Downloads/results_automlbenchmark_vanilla_set_tune_data.csv"
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T182233.csv" # no 300 cap
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T235902.csv" # removed feature metadata bug
 # pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210909T070228.csv" # experimental
-pseudo_label = "~/Downloads/results_automlbenchmark_pseudo.csv" # final
+pseudo_label = "~/Downloads/results_pseudo_p85_normal_split.csv" # final
 
 # 4h
 # base = "result/baseline/4hmed/results_automlbenchmark_4h8c_autogluon.ag.4h8c.aws.20210827T163032.csv"
