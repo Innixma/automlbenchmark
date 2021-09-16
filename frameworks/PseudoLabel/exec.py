@@ -58,12 +58,11 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    # train_df, test_df = ration_train_test(train_df, test_df)
+    train_df, test_df = ration_train_test(train_df, test_df)
 
     validation_data = train_df.sample(frac=0.2, random_state=1)
     train_data = train_df.drop(validation_data.index)
 
-    test = test_df
     log.info(training_params)
     with Timer() as training:
         training_params['time_limit'] = config.max_runtime_seconds
@@ -80,11 +79,11 @@ def run(dataset, config):
 
     if is_classification:
         with Timer() as predict:
-             fake_probabilities = predictor.predict_proba(test, as_multiclass=True)
+             fake_probabilities = predictor.predict_proba(test_df, as_multiclass=True)
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
         with Timer() as predict:
-            predictions = predictor.predict(test, as_pandas=False)
+            predictions = predictor.predict(test_df, as_pandas=False)
         probabilities = None
 
     prob_labels = probabilities.columns.values.astype(str).tolist() if probabilities is not None else None
@@ -96,7 +95,7 @@ def run(dataset, config):
     leaderboard_kwargs = dict(silent=True, extra_info=_leaderboard_extra_info)
     # Disabled leaderboard test data input by default to avoid long running computation, remove 7200s timeout limitation to re-enable
     if _leaderboard_test:
-        leaderboard_kwargs['data'] = test
+        leaderboard_kwargs['data'] = test_df
 
     leaderboard = predictor.leaderboard(**leaderboard_kwargs)
     with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.width', 1000):
