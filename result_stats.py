@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import os
-from numpy.core.defchararray import upper
 import pandas as pd
 import pdb
 
