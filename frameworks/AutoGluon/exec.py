@@ -61,8 +61,6 @@ def run(dataset, config):
     validation_data = train_df.sample(frac=0.2, random_state=1)
     train_data = train_df.drop(validation_data.index)
 
-    train_data = train_df
-
     validation_data = test_df
 
     with Timer() as training:
