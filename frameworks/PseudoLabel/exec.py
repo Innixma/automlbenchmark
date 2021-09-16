@@ -58,7 +58,7 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    # train_df, test_df = ration_train_test(train_df, test_df)
+    train_df, test_df = ration_train_test(train_df, test_df)
 
     validation_data = train_df.sample(frac=0.2, random_state=1)
     train_data = train_df.drop(validation_data.index)
@@ -74,7 +74,7 @@ def run(dataset, config):
             label=label, **init_args).bad_pseudo_fit(train_data=train_data, test_data=test_df,
                                                      validation_data=validation_data,
                                                      init_kwargs=init_args, fit_kwargs=training_params,
-                                                     max_iter=1, reuse_pred_test=False, threshold=0.85)
+                                                     max_iter=1, reuse_pred_test=False, threshold=0.95)
     del train
 
     if is_classification:
