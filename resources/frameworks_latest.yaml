@@ -14,6 +14,9 @@ AutoGluon:
 PseudoLabel:
   version: "latest"
 
+ECE_PL:
+  version: "latest"
+
 AutoGluon_bestquality:
   extends: AutoGluon
   params:

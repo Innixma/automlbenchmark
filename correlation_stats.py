@@ -1,8 +1,10 @@
 import argparse
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import yaml
+
 
 def heatmap_plot(result):
     fig = plt.figure(figsize=(9, 9), dpi=100)
@@ -15,8 +17,8 @@ def heatmap_plot(result):
     ax.set_yticks(list(range(num_vars)))
     ax.set_xticklabels(list(result.corr().columns))
     ax.set_yticklabels(list(result.corr().columns))
-    ax.tick_params(axis='x', which='major', labelsize=5)
-    ax.tick_params(axis='y', which='major', labelsize=5)
+    ax.tick_params(axis='x', which='major', labelsize=10)
+    ax.tick_params(axis='y', which='major', labelsize=10)
 
     for i in range(num_vars):
         for j in range(num_vars):
@@ -24,6 +26,7 @@ def heatmap_plot(result):
                            ha="center", va="center", color="w")
 
     plt.show()
+
 
 def regression_diff_metric_correlation(vanilla_df: pd.DataFrame, pseudo_df: pd.DataFrame):
     metric = "result"
@@ -51,13 +54,15 @@ def regression_diff_metric_correlation(vanilla_df: pd.DataFrame, pseudo_df: pd.D
             task_list.append(task)
             fold_list.append(fold)
 
-    df = pd.DataFrame.from_dict(dict(task=task_list, fold=fold_list, vanilla_score=vanilla_score_list, pseudo_score=pseudo_score_list, difference=score_diff_list))
+    df = pd.DataFrame.from_dict(
+        dict(task=task_list, fold=fold_list, vanilla_score=vanilla_score_list, pseudo_score=pseudo_score_list,
+             difference=score_diff_list))
     heatmap_plot(df.corr())
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Config')
-    parser.add_argument("--config", name="?", nargs="?", type=str, default="correlation_stats.yaml",
+    parser.add_argument("--config", nargs="?", type=str, default="./correlation_stats.yaml",
                         help="configuration for correlation stats")
     args = parser.parse_args()
 
@@ -69,3 +74,8 @@ if __name__ == "__main__":
 
     vanilla_df = pd.read_csv(vanilla_path)
     pseudo_df = pd.read_csv(pseudo_label_path)
+
+    vanilla_df = vanilla_df[vanilla_df.type == 'regression']
+    pseudo_df = pseudo_df[pseudo_df.type == 'regression']
+
+    regression_diff_metric_correlation(vanilla_df, pseudo_df)
