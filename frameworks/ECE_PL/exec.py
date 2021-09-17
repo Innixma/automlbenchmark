@@ -48,6 +48,7 @@ def run(dataset, config):
 
     is_classification = config.type == 'classification'
     training_params = {k: v for k, v in config.framework_params.items() if not k.startswith('_')}
+    threshold = config.framework_params['_threshold']
 
     train, test = dataset.train.path, dataset.test.path
     label = dataset.target.name
@@ -71,7 +72,7 @@ def run(dataset, config):
             label=label, **init_args).bad_pseudo_fit(train_data=train_data, test_data=test_df,
                                                      validation_data=validation_data,
                                                      init_kwargs=init_args, fit_kwargs=training_params,
-                                                     max_iter=1, reuse_pred_test=False, threshold=0.95, use_ECE=True)
+                                                     max_iter=1, reuse_pred_test=False, threshold=threshold, use_ECE=True)
     del train
 
     if is_classification:
