@@ -11,11 +11,26 @@
 AutoGluon:
   version: "latest"
 
+AG_Ration:
+  version: "latest"
+  params:
+    _percent_test: 0.75
+
+PL_Ration:
+  version: "latest"
+  params:
+    _percent_test: 0.75
+
 PseudoLabel:
   version: "latest"
 
 ECE_PL:
   version: "latest"
+
+ECE_PL_Ration:
+  version: "latest"
+  params:
+    _percent_test: 0.75
 
 AutoGluon_bestquality:
   extends: AutoGluon

@@ -4,6 +4,7 @@ import shutil
 import sys
 import tempfile
 import warnings
+
 from test_helpers import ration_train_test, ration_train_val
 
 warnings.simplefilter("ignore")
@@ -16,7 +17,7 @@ import pandas as pd
 
 matplotlib.use('agg')  # no need for tk
 
-from autogluon.tabular import TabularDataset, TabularPredictor
+from autogluon.tabular import TabularPredictor, TabularDataset
 from autogluon.core.utils.savers import save_pd, save_pkl
 import autogluon.core.metrics as metrics
 from autogluon.tabular.version import __version__
@@ -48,6 +49,7 @@ def run(dataset, config):
 
     is_classification = config.type == 'classification'
     training_params = {k: v for k, v in config.framework_params.items() if not k.startswith('_')}
+    percent_test = config.framework_params['_percent_test']
 
     train, test = dataset.train.path, dataset.test.path
     label = dataset.target.name
@@ -58,29 +60,27 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    train_df, test_df = ration_train_test(train_df, test_df)
-    # validation_data = train_df.sample(frac=0.2, random_state=1)
-    # train_data = train_df.drop(validation_data.index)
-
+    train_df, test_df = ration_train_test(train_df, test_df, percent_test)
     train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type)
 
-    log.info(training_params)
     with Timer() as training:
-        training_params['time_limit'] = config.max_runtime_seconds
-        init_args = dict(
+        predictor = TabularPredictor(
+            label=label,
             eval_metric=perf_metric.name,
             path=models_dir,
-            problem_type=problem_type)
-        predictor, probabilities = TabularPredictor(
-            label=label, **init_args).bad_pseudo_fit(train_data=train_data, test_data=test_df,
-                                                     validation_data=validation_data,
-                                                     init_kwargs=init_args, fit_kwargs=training_params,
-                                                     max_iter=1, reuse_pred_test=False, threshold=0.95)
+            problem_type=problem_type,
+        ).fit(
+            train_data=train_data,
+            time_limit=config.max_runtime_seconds,
+            tuning_data=validation_data,
+            **training_params
+        )
+
     del train
 
     if is_classification:
         with Timer() as predict:
-            fake_probabilities = predictor.predict_proba(test_df, as_multiclass=True)
+            probabilities = predictor.predict_proba(test_df, as_multiclass=True)
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
         with Timer() as predict:
