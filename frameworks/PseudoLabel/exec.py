@@ -58,7 +58,7 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    train_df, test_df = ration_train_test(train_df, test_df)
+    # train_df, test_df = ration_train_test(train_df, test_df)
     # validation_data = train_df.sample(frac=0.2, random_state=1)
     # train_data = train_df.drop(validation_data.index)
 
