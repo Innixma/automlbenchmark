@@ -47,6 +47,7 @@ def run(dataset, config):
 
     is_classification = config.type == 'classification'
     training_params = {k: v for k, v in config.framework_params.items() if not k.startswith('_')}
+    val_frac = config.framework_params['_val_frac']
 
     train, test = dataset.train.path, dataset.test.path
     label = dataset.target.name
@@ -57,7 +58,7 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type)
+    train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type, holdout_frac=val_frac)
 
     with Timer() as training:
         predictor = TabularPredictor(

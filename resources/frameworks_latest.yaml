@@ -10,33 +10,40 @@
 
 AutoGluon:
   version: "latest"
+  params:
+    _val_frac:
 
 AG_Ration:
   version: "latest"
   params:
     _percent_test: 0.75
+    _val_frac:
 
 PL_Ration:
   version: "latest"
   params:
     _percent_test: 0.75
     _threshold: .95
+    _val_frac:
 
 PseudoLabel:
   version: "latest"
   params:
     _threshold: 0.95
+    _val_frac:
 
 ECE_PL:
   version: "latest"
   params:
     _threshold: 0.95
+    _val_frac:
 
 ECE_PL_Ration:
   version: "latest"
   params:
     _percent_test: 0.75
     _threshold: 0.95
+    _val_frac:
 
 AutoGluon_bestquality:
   extends: AutoGluon
