@@ -27,13 +27,13 @@ PseudoLabel:
 ECE_PL:
   version: "latest"
   params:
-    _threshold: 0.9
+    _threshold: 0.95
 
 ECE_PL_Ration:
   version: "latest"
   params:
     _percent_test: 0.75
-    _threshold: 0.9
+    _threshold: 0.95
 
 AutoGluon_bestquality:
   extends: AutoGluon
