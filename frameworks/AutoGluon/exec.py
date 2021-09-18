@@ -1,10 +1,11 @@
 import logging
 import os
 import shutil
-import warnings
 import sys
 import tempfile
-from test_helpers import ration_train_test, ration_train_val
+import warnings
+
+from test_helpers import ration_train_val
 
 warnings.simplefilter("ignore")
 
@@ -13,6 +14,7 @@ if sys.platform == 'darwin':
 
 import matplotlib
 import pandas as pd
+
 matplotlib.use('agg')  # no need for tk
 
 from autogluon.tabular import TabularPredictor, TabularDataset
@@ -58,7 +60,8 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type, holdout_frac=val_frac)
+    train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type,
+                                                   holdout_frac=val_frac)
 
     with Timer() as training:
         predictor = TabularPredictor(
@@ -86,8 +89,10 @@ def run(dataset, config):
 
     prob_labels = probabilities.columns.values.astype(str).tolist() if probabilities is not None else None
 
-    _leaderboard_extra_info = config.framework_params.get('_leaderboard_extra_info', False)  # whether to get extra model info (very verbose)
-    _leaderboard_test = config.framework_params.get('_leaderboard_test', False)  # whether to compute test scores in leaderboard (expensive)
+    _leaderboard_extra_info = config.framework_params.get('_leaderboard_extra_info',
+                                                          False)  # whether to get extra model info (very verbose)
+    _leaderboard_test = config.framework_params.get('_leaderboard_test',
+                                                    False)  # whether to compute test scores in leaderboard (expensive)
     leaderboard_kwargs = dict(silent=True, extra_info=_leaderboard_extra_info)
     # Disabled leaderboard test data input by default to avoid long running computation, remove 7200s timeout limitation to re-enable
     if _leaderboard_test:

@@ -62,7 +62,8 @@ def run(dataset, config):
     test_df = TabularDataset(test)
 
     train_df, test_df = ration_train_test(train_df, test_df, percent_test)
-    train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type, holdout_frac=val_frac)
+    train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type,
+                                                   holdout_frac=val_frac)
 
     with Timer() as training:
         predictor = TabularPredictor(

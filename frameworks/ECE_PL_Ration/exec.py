@@ -4,6 +4,7 @@ import shutil
 import sys
 import tempfile
 import warnings
+
 from test_helpers import ration_train_test, ration_train_val
 
 warnings.simplefilter("ignore")
@@ -62,7 +63,8 @@ def run(dataset, config):
     test_df = TabularDataset(test)
 
     train_df, test_df = ration_train_test(train_df, test_df, percent_test)
-    train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type, holdout_frac=val_frac)
+    train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type,
+                                                   holdout_frac=val_frac)
 
     log.info(training_params)
     with Timer() as training:
@@ -75,7 +77,8 @@ def run(dataset, config):
             label=label, **init_args).bad_pseudo_fit(train_data=train_data, test_data=test_df,
                                                      validation_data=validation_data,
                                                      init_kwargs=init_args, fit_kwargs=training_params,
-                                                     max_iter=1, reuse_pred_test=False, threshold=threshold, use_ECE=True)
+                                                     max_iter=1, reuse_pred_test=False, threshold=threshold,
+                                                     use_ECE=True)
     del train
 
     if is_classification:

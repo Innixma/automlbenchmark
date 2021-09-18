@@ -2,6 +2,7 @@ import pandas as pd
 from autogluon.core.utils import generate_train_test_split
 from autogluon.core.utils.utils import default_holdout_frac
 
+
 def ration_train_test(train_df, test_df, percent_test: float = 0.75):
     num_train = len(train_df)
     num_test = len(test_df)
@@ -22,6 +23,7 @@ def ration_train_test(train_df, test_df, percent_test: float = 0.75):
         train_df.append(more_train)
 
     return train_df, test_df
+
 
 def ration_train_val(train_df: pd.DataFrame, label: str, problem_type, holdout_frac: float = None):
     if holdout_frac is None:
