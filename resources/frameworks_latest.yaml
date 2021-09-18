@@ -20,9 +20,12 @@ PL_Ration:
   version: "latest"
   params:
     _percent_test: 0.75
+    _threshold: .95
 
 PseudoLabel:
   version: "latest"
+  params:
+    _threshold: 0.95
 
 ECE_PL:
   version: "latest"
