@@ -43,7 +43,7 @@ ECE_PL_Ration:
   params:
     _percent_test: 0.75
     _threshold: 0.95
-    _val_frac:
+    _val_frac: 0.2
 
 AutoGluon_bestquality:
   extends: AutoGluon
