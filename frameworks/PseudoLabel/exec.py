@@ -67,20 +67,23 @@ def run(dataset, config):
     log.info(training_params)
     with Timer() as training:
         training_params['time_limit'] = config.max_runtime_seconds
-        init_args = dict(
+        predictor = TabularPredictor(
+            label=label,
             eval_metric=perf_metric.name,
             path=models_dir,
-            problem_type=problem_type)
-        predictor, probabilities = TabularPredictor(
-            label=label, **init_args).bad_pseudo_fit(train_data=train_data, test_data=test_df,
-                                                     validation_data=validation_data,
-                                                     init_kwargs=init_args, fit_kwargs=training_params,
-                                                     max_iter=1, reuse_pred_test=False, threshold=threshold)
+            problem_type=problem_type,
+        ).fit(
+            test_data=test_df.drop(label),
+            train_data=train_data,
+            time_limit=config.max_runtime_seconds,
+            tuning_data=validation_data,
+            **training_params
+        )
     del train
 
     if is_classification:
         with Timer() as predict:
-            fake_probabilities = predictor.predict_proba(test_df, as_multiclass=True)
+            probabilities = predictor.predict_proba(test_df, as_multiclass=True)
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
         with Timer() as predict:
