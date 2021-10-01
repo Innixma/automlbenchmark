@@ -72,7 +72,7 @@ def run(dataset, config):
             eval_metric=perf_metric.name,
             path=models_dir,
             problem_type=problem_type,
-        ).fit(
+        ).pseudolabel_fit(
             test_data=test_df.drop(label),
             train_data=train_data,
             time_limit=config.max_runtime_seconds,
