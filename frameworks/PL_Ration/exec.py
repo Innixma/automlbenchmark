@@ -50,6 +50,7 @@ def run(dataset, config):
     is_classification = config.type == 'classification'
     training_params = {k: v for k, v in config.framework_params.items() if not k.startswith('_')}
     percent_test = config.framework_params['_percent_test']
+    threshold = config.framework_params['_threshold']
     val_frac = config.framework_params['_val_frac']
 
     train, test = dataset.train.path, dataset.test.path
@@ -73,7 +74,7 @@ def run(dataset, config):
             path=models_dir,
             problem_type=problem_type,
         ).pseudolabel_fit(
-            test_data=test_df.drop(label),
+            test_data=test_df.drop(columns=[label]),
             train_data=train_data,
             time_limit=config.max_runtime_seconds,
             tuning_data=validation_data,

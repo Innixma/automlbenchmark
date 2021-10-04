@@ -73,7 +73,7 @@ def run(dataset, config):
             path=models_dir,
             problem_type=problem_type,
         ).pseudolabel_fit(
-            test_data=test_df.drop(label),
+            test_data=test_df.drop(columns=[label]),
             train_data=train_data,
             time_limit=config.max_runtime_seconds,
             tuning_data=validation_data,
