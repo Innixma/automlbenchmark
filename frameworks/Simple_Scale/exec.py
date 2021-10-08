@@ -93,7 +93,7 @@ def run(dataset, config):
             temp = temperature_param.unsqueeze(1).expand(logits.size(0), logits.size(1))
             new_logits = (logits * temp)
             new_logits = new_logits / torch.sum(new_logits, dim=1)[:, None]
-            loss = nll_criterion(new_logits, torch.tensor(y_val.values))
+            loss = -1 * nll_criterion(new_logits, torch.tensor(y_val.values))
             loss.backward()
             return loss
 
