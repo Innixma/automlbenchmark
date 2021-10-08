@@ -5,7 +5,6 @@ import sys
 import tempfile
 import warnings
 import torch
-
 from test_helpers import ration_train_val
 
 warnings.simplefilter("ignore")
@@ -84,24 +83,23 @@ def run(dataset, config):
     if is_classification:
         y_val_probs = predictor.predict_proba(X_val)
         logits = torch.tensor(y_val_probs.values)
-        epsilon_param = torch.nn.Parameter(torch.zeros(1))
+        temperature_param = torch.nn.Parameter(torch.ones(1))
         nll_criterion = torch.nn.NLLLoss().cuda()
-        optimizer = torch.optim.LBFGS([epsilon_param], lr=0.01, max_iter=1000)
+        optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=1000)
 
-        def epsilon_step():
+        def temperature_scale_step():
             optimizer.zero_grad()
-            epsilon = epsilon_param.unsqueeze(1).expand(logits.size(0), logits.size(1))
-            new_logits = (logits + epsilon)
-            sum_new_logits = torch.sum(new_logits, dim=1)
-            loss = nll_criterion(new_logits / sum_new_logits[:, None], y_val)
+            temp = temperature_param.unsqueeze(1).expand(logits.size(0), logits.size(1))
+            new_logits = (logits * temp)
+            loss = nll_criterion(new_logits, y_val)
             loss.backward()
             return loss
 
-        optimizer.step(epsilon_step)
+        optimizer.step(temperature_scale_step)
 
         with Timer() as predict:
-            probabilities = predictor.predict_proba(test_df, as_multiclass=True)
-            probabilities = probabilities + epsilon_param[0].item()
+            logits = predictor.predict_proba(test_df, as_multiclass=True)
+            probabilities = logits * temperature_param[0].item()
             probabilities = probabilities / probabilities.sum()
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
