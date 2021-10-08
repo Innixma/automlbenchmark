@@ -91,7 +91,7 @@ def run(dataset, config):
             optimizer.zero_grad()
             temp = temperature_param.unsqueeze(1).expand(logits.size(0), logits.size(1))
             new_logits = (logits * temp)
-            loss = nll_criterion(new_logits, y_val)
+            loss = nll_criterion(new_logits, torch.tensor(y_val.values))
             loss.backward()
             return loss
 

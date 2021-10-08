@@ -84,7 +84,7 @@ def run(dataset, config):
     if is_classification:
         y_val_probs = predictor.predict_proba(X_val)
         logits = torch.tensor(y_val_probs.values)
-        epsilon_param = torch.nn.Parameter(torch.zeros(1))
+        epsilon_param = torch.nn.Parameter(torch.ones(1))
         nll_criterion = torch.nn.NLLLoss().cuda()
         optimizer = torch.optim.LBFGS([epsilon_param], lr=0.01, max_iter=1000)
 
@@ -93,7 +93,7 @@ def run(dataset, config):
             epsilon = epsilon_param.unsqueeze(1).expand(logits.size(0), logits.size(1))
             new_logits = (logits + epsilon)
             sum_new_logits = torch.sum(new_logits, dim=1)
-            loss = nll_criterion(new_logits / sum_new_logits[:, None], y_val)
+            loss = nll_criterion(new_logits / sum_new_logits[:, None], torch.tensor(y_val.values))
             loss.backward()
             return loss
 
