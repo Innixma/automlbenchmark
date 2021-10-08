@@ -85,7 +85,7 @@ def run(dataset, config):
     if is_classification:
         y_val_probs = predictor.predict_proba(X_val)
         logits = torch.tensor(np.log2(y_val_probs.values))
-        temperature_param = torch.nn.Parameter(torch.ones(1) * 1.5)
+        temperature_param = torch.nn.Parameter(torch.ones(1))
         nll_criterion = torch.nn.CrossEntropyLoss().cuda()
         optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=1000)
 
