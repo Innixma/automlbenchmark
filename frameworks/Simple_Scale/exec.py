@@ -85,12 +85,13 @@ def run(dataset, config):
         logits = torch.tensor(y_val_probs.values)
         temperature_param = torch.nn.Parameter(torch.ones(1))
         nll_criterion = torch.nn.NLLLoss().cuda()
-        optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=1000)
+        optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=99)
 
         def temperature_scale_step():
             optimizer.zero_grad()
             temp = temperature_param.unsqueeze(1).expand(logits.size(0), logits.size(1))
             new_logits = (logits * temp)
+            new_logits = new_logits / torch.sum(new_logits, dim=1)[:, None]
             loss = nll_criterion(new_logits, torch.tensor(y_val.values))
             loss.backward()
             return loss

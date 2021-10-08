@@ -86,7 +86,7 @@ def run(dataset, config):
         logits = torch.tensor(y_val_probs.values)
         epsilon_param = torch.nn.Parameter(torch.ones(1)*0.5)
         nll_criterion = torch.nn.NLLLoss().cuda()
-        optimizer = torch.optim.LBFGS([epsilon_param], lr=0.01, max_iter=1000)
+        optimizer = torch.optim.LBFGS([epsilon_param], lr=0.01, max_iter=99)
 
         def epsilon_step():
             optimizer.zero_grad()
