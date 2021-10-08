@@ -29,6 +29,11 @@ Temperature_Scaling:
   params:
     _val_frac:
 
+Simple_Scale:
+  version: "latest"
+  params:
+    _val_frac:
+
 PL_Ration:
   version: "latest"
   params:
