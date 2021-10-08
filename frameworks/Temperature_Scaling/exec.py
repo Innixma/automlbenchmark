@@ -102,7 +102,7 @@ def run(dataset, config):
         with Timer() as predict:
             logits = np.log2(predictor.predict_proba(test_df, as_multiclass=True))
             probabilities = logits / temperature_param[0].item()
-            probabilities = scipy.special.softmax(probabilities)
+            probabilities = scipy.special.softmax(probabilities, axis=1)
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
         with Timer() as predict:
