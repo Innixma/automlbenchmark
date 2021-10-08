@@ -87,6 +87,7 @@ def run(dataset, config):
         epsilon_param = torch.nn.Parameter(torch.ones(1)*0.5)
         nll_criterion = torch.nn.NLLLoss().cuda()
         optimizer = torch.optim.LBFGS([epsilon_param], lr=0.01, max_iter=99)
+        y_val = predictor._learner.label_cleaner.transform(y_val)
 
         def epsilon_step():
             optimizer.zero_grad()

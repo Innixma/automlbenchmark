@@ -86,6 +86,7 @@ def run(dataset, config):
         temperature_param = torch.nn.Parameter(torch.ones(1))
         nll_criterion = torch.nn.NLLLoss().cuda()
         optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=99)
+        y_val = predictor._learner.label_cleaner.transform(y_val)
 
         def temperature_scale_step():
             optimizer.zero_grad()
