@@ -88,6 +88,7 @@ def run(dataset, config):
         temperature_param = torch.nn.Parameter(torch.ones(1))
         nll_criterion = torch.nn.CrossEntropyLoss().cuda()
         optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=1000)
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
         y_val = predictor._learner.label_cleaner.transform(y_val)
 
         def temperature_scale_step():
@@ -96,6 +97,7 @@ def run(dataset, config):
             new_logits = (logits / temp)
             loss = nll_criterion(new_logits, torch.tensor(y_val.values))
             loss.backward()
+            scheduler.step()
             return loss
 
         optimizer.step(temperature_scale_step)
