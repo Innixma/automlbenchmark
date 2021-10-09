@@ -44,7 +44,7 @@ def print_inference_speedup(df1, df2):
         df1_rows = df1[df1["task"] == task]
         df2_rows = df2[df2["task"] == task]
         for fold in df1_rows["fold"].unique():
-            row1, row2 = df1_rows[df1_rows["fold"] == fold], df2_rows[df2_rows["fold"] == fold]
+            row1, row2 = df1_rows[df1_rows["fold"] == fold].head(1), df2_rows[df2_rows["fold"] == fold].head(1)
             if len(row1) == 0 or len(row2) == 0 or row1['predict_duration'].isna().item() or row2['predict_duration'].isna().item():
                 continue
             df1_time, df2_time = row1['predict_duration'].item(), row2['predict_duration'].item()
@@ -63,7 +63,7 @@ def compare_dfs_improvement(df1, df2):
         df2_rows = df2[df2["task"] == task]
 
         for fold in df1_rows["fold"].unique():
-            row1, row2 = df1_rows[df1_rows["fold"] == fold], df2_rows[df2_rows["fold"] == fold]
+            row1, row2 = df1_rows[df1_rows["fold"] == fold].head(1), df2_rows[df2_rows["fold"] == fold].head(1)
             if len(row1) == 0 or len(row2) == 0 or row1[metric].isna().item() or row2[metric].isna().item():
                 continue
             df1_score, df2_score = row1[metric].item(), row2[metric].item()
@@ -112,7 +112,7 @@ def compare_dfs(df1, df2, grouped=False):
                 equal_performance.append(task)
         else:
             for fold in df1_rows["fold"].unique():
-                row1, row2 = df1_rows[df1_rows["fold"] == fold], df2_rows[df2_rows["fold"] == fold]
+                row1, row2 = df1_rows[df1_rows["fold"] == fold].head(1), df2_rows[df2_rows["fold"] == fold].head(1)
                 if len(row1) == 0 or len(row2) == 0 or row1[metric].isna().item() or row2[metric].isna().item():
                     continue
                 score1, score2 = row1[metric].item(), row2[metric].item()
@@ -249,85 +249,9 @@ def print_suite_result(base: pd.DataFrame, pseudo_label: pd.DataFrame, indepth=T
     print(df)
     print("==============================================================================")
 
-
-# ======= NEW ======= #
-
-# 1h
-# base = "result/baseline/1hmed/results_automlbenchmark_1h8c_autogluon.ag.1h8c.aws.20210827T163031.csv"
-# pseudo_label = "result/best/1hmed/results_automlbenchmark_1h8c_pseudo_label_med.ag.1h8c.aws.20210828T182000.csv"
-
-# base = "result/baseline/1hhigh/results_automlbenchmark_1h8c_autogluon_high.ag.1h8c.aws.20210829T224457.csv"
-# pseudo_label = "result/best/1hhigh/results_automlbenchmark_1h8c_pseudo_label_high.ag.1h8c.aws.20210829T224459.csv"
-
-# base = "result/baseline/1hnorepeat/results_automlbenchmark_1h8c_autogluon_norepeat.ag.1h8c.aws.20210827T202558.csv"
-# pseudo_label = "result/best/1hnorepeat/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210829T224516.csv"
-
-# base = "result/baseline/1hbest/results_automlbenchmark_1h8c_autogluon_bestquality.ag.1h8c.aws.20210830T230714.csv"
-# base = "~/Downloads/results_automlbenchmark_1h8c_2021_08_29_knn.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_autogluon_bestquality.ag.1h8c.aws.20210902T175142.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210902T175139.csv"
-
-# norepeat
-# base = "~/Downloads/results_automlbenchmark_1h8c_autogluon_norepeat.ag.1h8c.aws.20210908T151458.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210905T230349.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210906T213059.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210908T035241.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210909T090238.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_norepeat.ag.1h8c.aws.20210909T202902.csv"
-
 # full
-base = "~/Downloads/NickVal_NormalTest/results_automlbenchmark_09_21_AutoGluon_NickVal_NormalTest.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210904T011959(1).csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210905T192540.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210906T202118.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_minimprovement.ag.1h8c.aws.20210906T213112.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210907T084943.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_stoppinground.ag.1h8c.aws.20210907T104958.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210907T175902.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_replacebag.ag.1h8c.aws.20210907T175858.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210907T221927.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_replacebag.ag.1h8c.aws.20210907T222005.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T012205.csv" # slide result
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label_minimprovement.ag.1h8c.aws.20210908T094645.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T182233.csv" # no 300 cap
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210908T235902.csv" # removed feature metadata bug
-# pseudo_label = "~/Downloads/results_automlbenchmark_1h8c_pseudo_label.ag.1h8c.aws.20210909T070228.csv" # experimental
-pseudo_label = "~/Downloads/NickVal_NormalTest/results_automlbenchmark_09_21_ECE_PL_NickVal_NormalTest_P5ECECal.csv" # final
-
-# 4h
-# base = "result/baseline/4hmed/results_automlbenchmark_4h8c_autogluon.ag.4h8c.aws.20210827T163032.csv"
-# pseudo_label = "result/best/4hmed/results_automlbenchmark_4h8c_pseudo_label_med.ag.4h8c.aws.20210828T210007.csv"
-
-# base = "result/baseline/4hhigh/results_automlbenchmark_4h8c_autogluon_high.ag.4h8c.aws.20210830T073353.csv"
-# pseudo_label = "result/best/4hhigh/results_automlbenchmark_4h8c_pseudo_label_high.ag.4h8c.aws.20210830T073352.csv"
-
-# base = "result/baseline/4hnorepeat/results_automlbenchmark_4h8c_autogluon_norepeat.ag.4h8c.aws.20210827T062721.csv"
-# pseudo_label = "result/best/4hnorepeat/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210828T210006.csv"
-# pseudo_label = "result/best/4hnorepeat/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210829T060616.csv"
-
-# base = "result/baseline/4hbest/results_automlbenchmark_4h8c_autogluon_bestquality.ag.4h8c.aws.20210827T062731.csv"
-# base = "result/best/4hbest/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210828T210005.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_improvementthreshold.ag.4h8c.aws.20210829T060617.csv"
-
-# # norepeat
-# base = "~/Downloads/results_automlbenchmark_4h8c_autogluon_norepeat.ag.4h8c.aws.20210908T145253.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210905T230350.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210907T001718.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210908T062913.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_norepeat.ag.4h8c.aws.20210909T090240.csv"
-
-# # full
-# base = "~/Downloads/results_automlbenchmark_4h8c_2021_09_02.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210902T062359(1).csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210905T192543.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210906T095323.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210906T202121.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210907T131305.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210908T012206.csv" # slide result
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label_minimprovement.ag.4h8c.aws.20210908T074624.csv"
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210908T182235.csv" # no 300 cap
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210908T235905.csv" # no feature metadata bag
-# pseudo_label = "~/Downloads/results_automlbenchmark_4h8c_pseudo_label.ag.4h8c.aws.20210909T070232.csv" # experimental
+base = "~/Downloads/4h8c/results_automlbenchmark_10_8_AG4h.csv"
+pseudo_label = "~/Downloads/4h8c/results_automlbenchmark_10_8_EPShift4h8c.csv" # final
 
 
 if __name__ == "__main__":

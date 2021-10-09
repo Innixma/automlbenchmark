@@ -94,7 +94,7 @@ def run(dataset, config):
             epsilon = epsilon_param.unsqueeze(1).expand(logits.size(0), logits.size(1))
             new_logits = (logits + epsilon)
             sum_new_logits = torch.sum(new_logits, dim=1)
-            loss = nll_criterion(new_logits / sum_new_logits[:, None], torch.tensor(y_val.values))
+            loss = -1 * nll_criterion(new_logits / sum_new_logits[:, None], torch.tensor(y_val.values))
             loss.backward()
             return loss
 
