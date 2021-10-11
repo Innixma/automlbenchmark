@@ -60,7 +60,7 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    is_best = 'presets' in training_params and 'best_quality' in training_params['presents']
+    is_best = 'presets' in training_params and 'best_quality' in training_params['presets']
 
     train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type,
                                                    holdout_frac=val_frac)
