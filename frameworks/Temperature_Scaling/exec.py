@@ -85,7 +85,7 @@ def run(dataset, config):
         )
         if is_best:
             predictor.fit(
-                train_data=train_data,
+                train_data=train_df,
                 time_limit=config.max_runtime_seconds,
                 **training_params
             )
