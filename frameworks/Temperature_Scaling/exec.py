@@ -4,9 +4,11 @@ import shutil
 import sys
 import tempfile
 import warnings
+
 import numpy as np
 import scipy
 import torch
+
 from test_helpers import ration_train_val
 
 warnings.simplefilter("ignore")
@@ -62,10 +64,17 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
+    is_best = 'presets' in training_params and 'best_quality' in training_params['presents']
+
     train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type,
                                                    holdout_frac=val_frac)
-    y_val = validation_data[label]
-    X_val = validation_data.drop(columns=[label])
+
+    if is_best:
+        y_val = train_df[label]
+        X_val = train_df.drop(columns=label)
+    else:
+        y_val = validation_data[label]
+        X_val = validation_data.drop(columns=[label])
 
     with Timer() as training:
         predictor = TabularPredictor(
@@ -73,22 +82,33 @@ def run(dataset, config):
             eval_metric=perf_metric.name,
             path=models_dir,
             problem_type=problem_type,
-        ).fit(
-            train_data=train_data,
-            time_limit=config.max_runtime_seconds,
-            tuning_data=validation_data,
-            **training_params
         )
+        if is_best:
+            predictor.fit(
+                train_data=train_data,
+                time_limit=config.max_runtime_seconds,
+                **training_params
+            )
+        else:
+            predictor.fit(
+                train_data=train_data,
+                time_limit=config.max_runtime_seconds,
+                tuning_data=validation_data,
+                **training_params
+            )
 
     del train
 
     if is_classification:
-        y_val_probs = predictor.predict_proba(X_val)
+        if is_best:
+            y_val_probs = predictor.get_oof_pred_proba()
+        else:
+            y_val_probs = predictor.predict_proba(X_val)
+
         logits = torch.tensor(np.log2(y_val_probs).values)
         temperature_param = torch.nn.Parameter(torch.ones(1))
         nll_criterion = torch.nn.CrossEntropyLoss().cuda()
         optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=1000)
-        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
         y_val = predictor._learner.label_cleaner.transform(y_val)
 
         def temperature_scale_step():
@@ -97,7 +117,6 @@ def run(dataset, config):
             new_logits = (logits / temp)
             loss = nll_criterion(new_logits, torch.tensor(y_val.values))
             loss.backward()
-            scheduler.step()
             return loss
 
         optimizer.step(temperature_scale_step)
