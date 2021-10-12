@@ -65,6 +65,7 @@ def run(dataset, config):
     test_df = TabularDataset(test)
 
     is_best = training_params.get('presets', False)
+
     train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type,
                                                    holdout_frac=val_frac)
 
