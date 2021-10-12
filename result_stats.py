@@ -251,7 +251,7 @@ def print_suite_result(base: pd.DataFrame, pseudo_label: pd.DataFrame, indepth=T
 
 # full
 base = "~/Downloads/4h8c/results_automlbenchmark_10_8_AG4h.csv"
-pseudo_label = "~/Downloads/4h8c/results_automlbenchmark_10_9_Temp_Scaling_Exp_LR.csv" # final
+pseudo_label = "~/Downloads/4h8c/results_automlbenchmark_10_11_Temp_Strong_Wolfe_4h8c.csv" # final
 
 
 if __name__ == "__main__":
