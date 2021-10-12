@@ -108,7 +108,7 @@ def run(dataset, config):
         logits = torch.tensor(np.log2(y_val_probs).values)
         temperature_param = torch.nn.Parameter(torch.ones(1))
         nll_criterion = torch.nn.CrossEntropyLoss().cuda()
-        optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=1000)
+        optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=1000, line_search_fn='strong_wolfe')
         y_val = predictor._learner.label_cleaner.transform(y_val)
 
         def temperature_scale_step():
