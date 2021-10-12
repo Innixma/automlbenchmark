@@ -28,7 +28,7 @@ Temperature_Scaling:
   version: "latest"
   params:
     _val_frac:
-    presets: best_quality
+    presets: # best_quality
 
 Simple_Scale:
   version: "latest"
