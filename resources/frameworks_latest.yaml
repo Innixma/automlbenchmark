@@ -29,6 +29,7 @@ Temperature_Scaling:
   params:
     _val_frac:
     presets:
+    calibrate: False
 
 Simple_Scale:
   version: "latest"

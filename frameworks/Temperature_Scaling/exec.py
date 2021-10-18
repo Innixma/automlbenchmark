@@ -100,31 +100,8 @@ def run(dataset, config):
     del train
 
     if is_classification:
-        if is_best:
-            y_val_probs = predictor.get_oof_pred_proba()
-        else:
-            y_val_probs = predictor.predict_proba(X_val)
-
-        logits = torch.tensor(np.log2(y_val_probs).values)
-        temperature_param = torch.nn.Parameter(torch.ones(1))
-        nll_criterion = torch.nn.CrossEntropyLoss().cuda()
-        optimizer = torch.optim.LBFGS([temperature_param], lr=0.01, max_iter=1000, line_search_fn='strong_wolfe')
-        y_val = predictor._learner.label_cleaner.transform(y_val)
-
-        def temperature_scale_step():
-            optimizer.zero_grad()
-            temp = temperature_param.unsqueeze(1).expand(logits.size(0), logits.size(1))
-            new_logits = (logits / temp)
-            loss = nll_criterion(new_logits, torch.tensor(y_val.values))
-            loss.backward()
-            return loss
-
-        optimizer.step(temperature_scale_step)
-
         with Timer() as predict:
-            logits = np.log2(predictor.predict_proba(test_df, as_multiclass=True))
-            probabilities = logits / temperature_param[0].item()
-            probabilities = scipy.special.softmax(probabilities, axis=1)
+            probabilities = predictor.predict_proba(test_df, as_multiclass=True)
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
         with Timer() as predict:

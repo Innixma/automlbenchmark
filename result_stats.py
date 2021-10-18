@@ -17,7 +17,7 @@ def mean_score(df: pd.DataFrame, column: str = 'result'):
 
 
 def filter_type(df: pd.DataFrame):
-    return  df[df['type'] == 'binary'].append(df[df['type'] == 'multiclass']) #df[df['type'] == 'regression']
+    return  df[df['type'] == 'binary'] #df[df['type'] == 'multiclass'] # df[df['type'] == 'binary'].append(df[df['type'] == 'multiclass']) #df[df['type'] == 'regression']
 
 
 def filter_samples(df, samples=100000, lower=True):
@@ -250,8 +250,8 @@ def print_suite_result(base: pd.DataFrame, pseudo_label: pd.DataFrame, indepth=T
     print("==============================================================================")
 
 # full
-base = "~/Downloads/4h8c/results_automlbenchmark_10_8_AG4h.csv"
-pseudo_label = "~/Downloads/4h8c/results_automlbenchmark_10_11_Temp_Strong_Wolfe_4h8c.csv" # final
+base = "~/Downloads/4h8c/results_automlbenchmark_best_4h8c_2021_09_02.csv"
+pseudo_label = "~/Downloads/4h8c/results_automlbenchmark_10_10_Temp_Scaling_Best.csv" # final
 
 
 if __name__ == "__main__":
