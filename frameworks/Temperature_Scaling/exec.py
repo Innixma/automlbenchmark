@@ -5,10 +5,6 @@ import sys
 import tempfile
 import warnings
 
-import numpy as np
-import scipy
-import torch
-
 from test_helpers import ration_train_val
 
 warnings.simplefilter("ignore")
@@ -64,7 +60,7 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    is_best = training_params.get('presets', False)
+    is_best = 'presets' in training_params and 'best_quality' in training_params['presets']
 
     train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type,
                                                    holdout_frac=val_frac)
@@ -77,11 +73,7 @@ def run(dataset, config):
             problem_type=problem_type,
         )
         if is_best:
-            predictor.fit(
-                train_data=train_df,
-                time_limit=config.max_runtime_seconds,
-                **training_params
-            )
+            predictor.fit(train_data=train_df, time_limit=config.max_runtime_seconds, **training_params)
         else:
             predictor.fit(
                 train_data=train_data,
