@@ -29,8 +29,8 @@ else
     # VERSION="pseudo_label_POC"
     # REPO="https://github.com/gradientsky/autogluon.git"
 
-    VERSION="master"
-    REPO="https://github.com/awslabs/autogluon.git"
+    VERSION="temperature_scaling"
+    REPO="https://github.com/DolanTheMFWizard/autogluon.git"
     TARGET_DIR="${HERE}/lib/${PKG}"
     rm -Rf ${TARGET_DIR}
     git clone --depth 1 --single-branch --branch ${VERSION} --recurse-submodules ${REPO} ${TARGET_DIR}

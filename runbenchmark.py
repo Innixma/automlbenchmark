@@ -85,6 +85,7 @@ parser.add_argument('--logging', type=str, default="console:info,app:debug,root:
 parser.add_argument('--profiling', nargs='?', const=True, default=False, help=argparse.SUPPRESS)
 parser.add_argument('--session', type=str, default=None, help=argparse.SUPPRESS)
 parser.add_argument('-X', '--extra', default=[], action='append', help=argparse.SUPPRESS)
+parser.add_argument('-r', '--root_key', default=None, help='Name of instance being run')
 # group = parser.add_mutually_exclusive_group()
 # group.add_argument('--keep-scores', dest='keep_scores', action='store_true',
 #                    help="Set to true [default] to save/add scores in output directory")

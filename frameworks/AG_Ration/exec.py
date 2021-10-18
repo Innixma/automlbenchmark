@@ -5,7 +5,7 @@ import sys
 import tempfile
 import warnings
 
-from test_helpers import ration_train_val
+from test_helpers import ration_train_test, ration_train_val
 
 warnings.simplefilter("ignore")
 
@@ -49,7 +49,8 @@ def run(dataset, config):
 
     is_classification = config.type == 'classification'
     training_params = {k: v for k, v in config.framework_params.items() if not k.startswith('_')}
-    val_frac = config.framework_params.get('_val_frac', None)
+    percent_test = config.framework_params['_percent_test']
+    val_frac = config.framework_params['_val_frac']
 
     train, test = dataset.train.path, dataset.test.path
     label = dataset.target.name
@@ -60,8 +61,7 @@ def run(dataset, config):
     train_df = TabularDataset(train)
     test_df = TabularDataset(test)
 
-    is_best = 'presets' in training_params and 'best_quality' in training_params['presets']
-
+    train_df, test_df = ration_train_test(train_df, test_df, percent_test)
     train_data, validation_data = ration_train_val(train_df=train_df, label=label, problem_type=problem_type,
                                                    holdout_frac=val_frac)
 
@@ -71,16 +71,12 @@ def run(dataset, config):
             eval_metric=perf_metric.name,
             path=models_dir,
             problem_type=problem_type,
+        ).fit(
+            train_data=train_data,
+            time_limit=config.max_runtime_seconds,
+            tuning_data=validation_data,
+            **training_params
         )
-        if is_best:
-            predictor.fit(train_data=train_df, time_limit=config.max_runtime_seconds, **training_params)
-        else:
-            predictor.fit(
-                train_data=train_data,
-                time_limit=config.max_runtime_seconds,
-                tuning_data=validation_data,
-                **training_params
-            )
 
     del train
 
